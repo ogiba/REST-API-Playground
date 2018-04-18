@@ -6,8 +6,13 @@
 package pl.ogiba.mavenwebproject.servlets;
 
 import com.google.gson.Gson;
+import com.sun.istack.internal.Nullable;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -65,32 +70,24 @@ public class Posts extends HttpServlet {
 //        processRequest(request, response);
         response.setContentType("application/json");
 
+        boolean loadDataFromFile = false;
+
+        String fromFileParam = request.getParameter("fromFile");
         
-        
-//        int limit = 10;
-//        String newLimit = request.getParameter("limit");
-//
-//        if (newLimit != null) {
-//            try {
-//                limit = Integer.parseInt(newLimit);
-//            } catch (NumberFormatException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//
-//        ArrayList<Post> posts = new ArrayList<>();
-//
-//        for (int i = 0; i < limit; i++) {
-//            Post post = new Post(i, "Test", "Test content");
-//            posts.add(post);
-//        }
-//
-//        Gson gson = new Gson();
-//        String json = gson.toJson(posts);
-//
-//        try (PrintWriter out = response.getWriter()) {
-//            out.print(json);
-//        }
+        if (fromFileParam != null) {
+            loadDataFromFile = Boolean.parseBoolean(fromFileParam);
+        }
+
+        final String content;
+        if (loadDataFromFile) {
+            content = getFile("files/mocked_posts.json");
+        } else {
+            content = provideMockedItems(request.getParameter("limit"));
+        }
+
+        try (PrintWriter out = response.getWriter()) {
+            out.print(content);
+        }
     }
 
     /**
@@ -117,28 +114,67 @@ public class Posts extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String getFile(String fileName) {
+    private String provideMockedItems(@Nullable String newLimit) {
+        int limit = 10;
 
-        StringBuilder result = new StringBuilder("");
-
-        //Get file from resources folder
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
-
-        try (Scanner scanner = new Scanner(file)) {
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                result.append(line).append("\n");
+        if (newLimit != null) {
+            try {
+                limit = Integer.parseInt(newLimit);
+            } catch (NumberFormatException ex) {
+                ex.printStackTrace();
             }
-
-            scanner.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
-        return result.toString();
+        ArrayList<Post> posts = new ArrayList<>();
+
+        for (int i = 0; i < limit; i++) {
+            Post post = new Post(i, "Test", "Test content");
+            posts.add(post);
+        }
+
+        Gson gson = new Gson();
+        return gson.toJson(posts);
+    }
+
+    private String getFile(String fileName) {
+
+//        StringBuilder result = new StringBuilder("");
+//
+//        //Get file from resources folder
+//        ClassLoader classLoader = getClass().getClassLoader();
+//        File file = new File(classLoader.getResource(fileName).getFile());
+//
+//        try (Scanner scanner = new Scanner(file)) {
+//
+//            while (scanner.hasNextLine()) {
+//                String line = scanner.nextLine();
+//                result.append(line).append("\n");
+//            }
+//
+//            scanner.close();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        InputStream inputStream = getClass().getClassLoader()
+                .getResourceAsStream(fileName);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        String expectedValue = "";
+        try {
+            String value;
+            do {
+                value = reader.readLine();
+
+                if (value != null) {
+                    expectedValue += value;
+                }
+            } while (value != null);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return expectedValue;
 
     }
 }
