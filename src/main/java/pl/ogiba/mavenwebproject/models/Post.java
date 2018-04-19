@@ -6,18 +6,20 @@
 package pl.ogiba.mavenwebproject.models;
 
 import com.google.gson.annotations.SerializedName;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author ogiba
  */
+@XmlRootElement
 public class Post {
 
-    @SerializedName("id")
+  
     private int id;
-    @SerializedName("title")
+ 
     private String title;
-    @SerializedName("content")
+   
     private String content;
 
     public Post(int id, String title, String content) {
@@ -25,4 +27,30 @@ public class Post {
         this.title = title;
         this.content = content;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+    
+    
 }

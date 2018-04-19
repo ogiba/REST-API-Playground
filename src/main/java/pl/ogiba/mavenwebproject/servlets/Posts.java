@@ -6,7 +6,6 @@
 package pl.ogiba.mavenwebproject.servlets;
 
 import com.google.gson.Gson;
-import com.sun.istack.internal.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -114,7 +113,7 @@ public class Posts extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String provideMockedItems(@Nullable String newLimit) {
+    private String provideMockedItems(String newLimit) {
         int limit = 10;
 
         if (newLimit != null) {
